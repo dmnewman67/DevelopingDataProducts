@@ -1,0 +1,75 @@
+---
+title: "Fuel Economy Comparitive Analysis"
+author: "D Newman"
+output: html_document
+knit: slidify::knit2slides
+mode: selfcontained
+hitheme: tomorrow
+subtitle: June 9, 2019
+framework: io2012
+widgets: bootstrap
+---
+<style>
+.title-slide {
+  background-color: #ccccff; /* #EDE0CF; ; #CA9F9D*/
+}
+</style>
+
+## Developing Data Products
+
+### Shiny Application and Reproducible Pitch 
+
+- This application uses the mtcars dataset supplied by Motor Trend magazine. It will compare the fuel economy (mpg) of various cars based on several factors. The number of cylinders, engine displacement and horsepower.
+
+- The output consists of a simple boxplot of mpg and a dotplot with a linear regression line.
+
+### The App can be found here
+URL: *https://dmnewman.shinyapps.io/developDataProductsShiny/*
+
+---
+The application has several tabs so the user can select input, view the output or look at the source code.
+
+The input consists of a dropdown menu so the user can select which variable to compare. 
+
+The output is a boxplot and a linear regression dotplot.
+
+---
+
+## The dataset
+
+### mtcars
+
+> Motor Trend magazine supplied this data set compiled from various road tests that they conducted.
+A actual sample of the data is shown below.
+
+```{r}
+library(datasets)
+head(mtcars)
+```
+
+---
+
+## The code that performs the comparitive analysis
+
+```r
+shinyServer(function(input, output) {
+  
+  output$fit <- renderPrint({summary(fit())})
+  
+  labelText <- reactive({paste("mpg ~", input$variable)})
+  
+  fit <- reactive({lm(as.formula(labelText()), data=mpgData)})
+  
+  output$caption <- renderText({labelText()})
+  
+  output$boxPlot <- renderPlot({boxplot(as.formula(labelText()), data = mpgData)})
+  
+  output$dotPlot <- renderPlot({with(mpgData, {
+    plot(as.formula(labelText()))
+    abline(fit(), col=2)})
+  })
+  
+})
+
+```
+
